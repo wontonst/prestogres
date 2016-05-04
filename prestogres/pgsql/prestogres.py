@@ -15,6 +15,11 @@ JSON_TYPE_PATTERN = re.compile("^(?:row|array|map)(?![a-zA-Z])", re.IGNORECASE)
 # See the document about system column names: http://www.postgresql.org/docs/9.3/static/ddl-system-columns.html
 SYSTEM_COLUMN_NAMES = set(["oid", "tableoid", "xmin", "cmin", "xmax", "cmax", "ctid"])
 
+def log_stuff(stuff):
+    with open("/tmp/prestogrespy_log", "a") as myfile:
+        myfile.write(stuff)
+
+
 # convert Presto query result field types to PostgreSQL types
 def _pg_result_type(presto_type):
     if presto_type == "varchar":  # for old Presto
