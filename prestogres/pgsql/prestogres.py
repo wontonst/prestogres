@@ -165,6 +165,10 @@ class SessionData(object):
 session = SessionData()
 
 def start_presto_query(presto_server, presto_user, presto_catalog, presto_schema, function_name, query):
+    log(presto_catalog)
+    log(presto_schema)
+    log(function_name)
+    log(query)
     try:
         # preserve search_path if explicitly set
         search_path = _get_session_search_path_array()
