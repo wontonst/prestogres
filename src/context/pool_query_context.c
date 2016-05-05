@@ -1825,7 +1825,7 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 	 * CREATE TABLE
 	 * CREATE TABLE ... AS SELECT
 	 */
-	if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt))
+  if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt))
 	{
 		if (pool_has_system_catalog(node))
 		{
@@ -1911,6 +1911,12 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 		 */
 		ereport(DEBUG1, (errmsg("prestogres_send_to_where: begin-commit-savepoint")));
 		return PRESTOGRES_BEGIN_COMMIT;
+	}
+  /*
+   * SET
+   */
+        else if(IsA(node, VariableSetStmt)){
+	  return PRESTOGRES_PRESTO;
 	}
 
 	/*
