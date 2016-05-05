@@ -1833,13 +1833,13 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
   /*
    * SET
    */
-  /* if(IsA(node, VariableSetStmt)){
+   if(IsA(node, VariableSetStmt)){
 	  FILE *f = fopen("/tmp/pgpool_log", "a");
 	  fprintf(f, "returning as prestogres_presto");
-	  fflush(f)
+	  fflush(f);
 	  return PRESTOGRES_PRESTO;
 	}
-	else */ if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt))
+	else  if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt))
 	{
 	  FILE *f = fopen("/tmp/pgpool_log", "a");
 	  fprintf(f, "in select/insert/create/createas");
