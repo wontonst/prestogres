@@ -37,7 +37,7 @@
 #include <string.h>
 #include <netinet/in.h>
 #include <stdlib.h>
-
+#include <stdio.h>
 /*
  * Where to send query
  */
@@ -388,6 +388,9 @@ void pool_where_to_send(POOL_QUERY_CONTEXT *query_context, char *query, Node *no
 		/* single statement */
 		else if (!query_context->is_multi_statement)
 		{
+		  FILE *f = fopen("/tmp/pgpool_log", "a");
+		  fprintf(f, "in pool_where_to_send single statement");
+		  fflush(f);
 			PRESTOGRES_DEST dest = prestogres_send_to_where(node);
 			switch (dest) {
 			case PRESTOGRES_SYSTEM:
@@ -395,6 +398,7 @@ void pool_where_to_send(POOL_QUERY_CONTEXT *query_context, char *query, Node *no
 				prestogres_rewrite_mode = REWRITE_NONE;
 				break;
 			case PRESTOGRES_PRESTO:
+			  fprintf(f, "set to rewrite presto");
 				prestogres_rewrite_mode = REWRITE_PRESTO;
 				break;
 			case PRESTOGRES_BEGIN_COMMIT:
@@ -1824,9 +1828,22 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 	 * INSERT INTO ... SELECT
 	 * CREATE TABLE
 	 * CREATE TABLE ... AS SELECT
+	 * SET
 	 */
-  if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt))
+  /*
+   * SET
+   */
+  /* if(IsA(node, VariableSetStmt)){
+	  FILE *f = fopen("/tmp/pgpool_log", "a");
+	  fprintf(f, "returning as prestogres_presto");
+	  fflush(f)
+	  return PRESTOGRES_PRESTO;
+	}
+	else */ if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt))
 	{
+	  FILE *f = fopen("/tmp/pgpool_log", "a");
+	  fprintf(f, "in select/insert/create/createas");
+	  fflush(f);
 		if (pool_has_system_catalog(node))
 		{
 			ereport(DEBUG1, (errmsg("prestogres_send_to_where: system catalog")));
@@ -1912,13 +1929,6 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 		ereport(DEBUG1, (errmsg("prestogres_send_to_where: begin-commit-savepoint")));
 		return PRESTOGRES_BEGIN_COMMIT;
 	}
-  /*
-   * SET
-   */
-        else if(IsA(node, VariableSetStmt)){
-	  return PRESTOGRES_PRESTO;
-	}
-
 	/*
 	 * Other statements
 	 */
@@ -2090,6 +2100,9 @@ static bool match_auto_limit_pattern(const char* query)
 static void run_and_rewrite_presto_query(POOL_SESSION_CONTEXT* session_context, POOL_QUERY_CONTEXT* query_context,
 		int partial_rewrite_index, bool has_cursor)
 {
+  FILE *f = fopen("/tmp/pgpool_log", "a");
+  fprintf(f, "run rewrite presto query");
+  fflush(f);
 	char *buffer, *bufend;
 	char *message = NULL, *errcode = NULL;
 	partial_rewrite_fragments fragments = {0};

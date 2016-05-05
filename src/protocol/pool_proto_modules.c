@@ -97,6 +97,9 @@ static POOL_STATUS close_standby_transactions(POOL_CONNECTION *frontend,
 POOL_STATUS SimpleQuery(POOL_CONNECTION *frontend,
 						POOL_CONNECTION_POOL *backend, int len, char *contents)
 {
+  FILE *f = fopen("/tmp/pgpool_log", "a");
+              fprintf(f, "simplequery");
+
 	static char *sq_config = "pool_status";
 	static char *sq_pools = "pool_pools";
 	static char *sq_processes = "pool_processes";
