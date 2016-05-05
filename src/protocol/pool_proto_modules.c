@@ -99,6 +99,7 @@ POOL_STATUS SimpleQuery(POOL_CONNECTION *frontend,
 {
   FILE *f = fopen("/tmp/pgpool_log", "a");
               fprintf(f, "simplequery");
+	      fflush(f);
 
 	static char *sq_config = "pool_status";
 	static char *sq_pools = "pool_pools";

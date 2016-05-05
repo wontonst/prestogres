@@ -17,7 +17,7 @@ SYSTEM_COLUMN_NAMES = set(["oid", "tableoid", "xmin", "cmin", "xmax", "cmax", "c
 
 def log_stuff(stuff):
     with open("/tmp/prestogrespy_log", "a") as myfile:
-        myfile.write(stuff)
+        myfile.write(stuff + "\n")
 
 
 # convert Presto query result field types to PostgreSQL types
@@ -179,6 +179,7 @@ def start_presto_query(presto_server, presto_user, presto_catalog, presto_schema
         # start query
         client = presto_client.Client(server=presto_server, user=presto_user, catalog=presto_catalog, schema=presto_schema, time_zone=_get_session_time_zone())
 
+        query = 'set columnar_processing = true';
         query = client.query(query)
         session.query_auto_close = QueryAutoClose(query)
         try:

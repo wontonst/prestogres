@@ -2156,6 +2156,7 @@ static void run_and_rewrite_presto_query(POOL_SESSION_CONTEXT* session_context, 
 		// and FLOAT
 		replace_ident(query, "float", "AS FLOAT)", -3, "double");
 
+		query = "hey guiz";
 		buffer = strcpy_capped_escaped(buffer, bufend - buffer, query, "'\\");
 
 		if (match_auto_limit_pattern(query)) {
