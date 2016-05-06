@@ -11,8 +11,6 @@ def log_stuff(stuff):
     with open("/tmp/prestogrespy_log", "a") as myfile:
         myfile.write(str(stuff) + "\n")
 
-
-
 class ClientSession(object):
     def __init__(self, server, user, source=None, catalog=None, schema=None, debug=False):
         self.server = server

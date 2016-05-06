@@ -161,14 +161,15 @@ class QueryAutoCloseIteratorWithJsonConvert(QueryAutoCloseIterator):
 class SessionData(object):
     def __init__(self):
         self.query_auto_close = None
+        self.variables = {}
 
 session = SessionData()
 
-def start_presto_query(presto_server, presto_user, presto_catalog, presto_schema, function_name, query):
+def start_presto_query(presto_server, presto_user, presto_catalog, presto_schema, function_name, original_query):
     log_stuff(presto_catalog)
     log_stuff(presto_schema)
     log_stuff(function_name)
-    log_stuff(query)
+    log_stuff(original_query)
     try:
         # preserve search_path if explicitly set
         search_path = _get_session_search_path_array()
@@ -177,14 +178,13 @@ def start_presto_query(presto_server, presto_user, presto_catalog, presto_schema
             presto_schema = search_path[0]
 
         # start query
-        curr_session = {'hash_partition_count':1,'columnar_processing':'true'}
-        client = presto_client.Client(server=presto_server, user=presto_user, catalog=presto_catalog, schema=presto_schema, time_zone=_get_session_time_zone(), session=curr_session)
-        if 'set session show' in query:
+        client = presto_client.Client(server=presto_server, user=presto_user, catalog=presto_catalog, schema=presto_schema, time_zone=_get_session_time_zone(), session=session.variables)
+        if 'set session show' in original_query:
             log_stuff('hit session show')
-            query = 'show session'
+            original_query = 'show session'
 
 
-        query = client.query(query)
+        query = client.query(original_query)
         log_stuff(query.client.http_client)
         session.query_auto_close = QueryAutoClose(query)
         try:
@@ -224,6 +224,12 @@ def start_presto_query(presto_server, presto_user, presto_catalog, presto_schema
             plpy.execute(create_type_sql)
             plpy.execute(create_function_sql)
 
+            match = re.search('^\s*set\s+session\s+([a-z_]+)\s*=\s*(.+)$', original_query, re.IGNORECASE)
+            if match:
+                field = match.group(1)
+                value = match.group(2)
+                if field not in session.variables:
+                    session.variables[field] = value
             query = None
 
         finally:
