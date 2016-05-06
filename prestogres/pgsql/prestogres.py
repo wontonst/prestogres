@@ -17,7 +17,7 @@ SYSTEM_COLUMN_NAMES = set(["oid", "tableoid", "xmin", "cmin", "xmax", "cmax", "c
 
 def log_stuff(stuff):
     with open("/tmp/prestogrespy_log", "a") as myfile:
-        myfile.write(stuff)
+        myfile.write(str(stuff) + "\n")
 
 
 # convert Presto query result field types to PostgreSQL types
@@ -177,9 +177,15 @@ def start_presto_query(presto_server, presto_user, presto_catalog, presto_schema
             presto_schema = search_path[0]
 
         # start query
-        client = presto_client.Client(server=presto_server, user=presto_user, catalog=presto_catalog, schema=presto_schema, time_zone=_get_session_time_zone())
+        curr_session = {'hash_partition_count':1,'columnar_processing':'true'}
+        client = presto_client.Client(server=presto_server, user=presto_user, catalog=presto_catalog, schema=presto_schema, time_zone=_get_session_time_zone(), session=curr_session)
+        if 'set session show' in query:
+            log_stuff('hit session show')
+            query = 'show session'
+
 
         query = client.query(query)
+        log_stuff(query.client.http_client)
         session.query_auto_close = QueryAutoClose(query)
         try:
             # result schema
@@ -208,9 +214,13 @@ def start_presto_query(presto_server, presto_user, presto_catalog, presto_schema
                 """ % \
                 (plpy.quote_ident(function_name), plpy.quote_ident(type_name))
 
+            drop_sql = "drop table if exists pg_temp.%s cascade" % \
+                   (plpy.quote_ident(type_name))
             # run statements
-            plpy.execute("drop table if exists pg_temp.%s cascade" % \
-                    (plpy.quote_ident(type_name)))
+            log_stuff(drop_sql)
+            log_stuff(create_type_sql)
+            log_stuff(create_function_sql)
+            plpy.execute(drop_sql)
             plpy.execute(create_type_sql)
             plpy.execute(create_function_sql)
 
