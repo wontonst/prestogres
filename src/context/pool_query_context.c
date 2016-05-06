@@ -1834,9 +1834,22 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
    * SET
    */
    if(IsA(node, VariableSetStmt)){
+	  
+	  if (((VariableSetStmt *)node)->kind == VAR_SET_VALUE &&
+	      !strcmp(((VariableSetStmt *)node)->name, "show"))
+	    {
+
 	  FILE *f = fopen("/tmp/pgpool_log", "a");
-	  fprintf(f, "returning as prestogres_presto");
+	  fprintf(f, "returning as system because show");
 	  fflush(f);
+
+	return PRESTOGRES_SYSTEM;
+	    }
+
+	  FILE *f2 = fopen("/tmp/pgpool_log", "a");
+	  fprintf(f2, "returning as prestogres_presto because name is %s\n", ((VariableSetStmt *)node)->name);
+	  fflush(f2);
+
 	  return PRESTOGRES_PRESTO;
 	}
 	else  if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt))
