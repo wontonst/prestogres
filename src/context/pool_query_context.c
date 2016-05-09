@@ -1867,7 +1867,6 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 		 */
 		if (strcasecmp(((VariableSetStmt *)node)->name, "SESSION CHARACTERISTICS") ||
 		    strcasecmp(((VariableSetStmt *)node)->name, "TRANSACTION")) {
-is_set_transaction_serializable(node)){
 	  FILE *f2 = fopen("/tmp/pgpool_log", "a");
 	  fprintf(f2, "in set session characteristics as transaction");
 	  fflush(f2);
