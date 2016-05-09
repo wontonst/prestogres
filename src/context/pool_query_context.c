@@ -1820,6 +1820,9 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 	 */
   if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt) || IsA(node, DropStmt) || IsA(node, ViewStmt) || IsA(node, VariableSetStmt))
 	{
+	  FILE *f = fopen("/tmp/pgpool_log", "a");
+	  fprintf(f, "in prestogres send to where first IF");
+	  fflush(f);
 		if (pool_has_system_catalog(node))
 		{
 			ereport(DEBUG1, (errmsg("prestogres_send_to_where: system catalog")));
@@ -1855,6 +1858,10 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 		 * SET SESSION CHARACTERISTICS AS TRANSACTION
 		 */
 		if (is_set_transaction_serializable(node)){
+	  FILE *f2 = fopen("/tmp/pgpool_log", "a");
+	  fprintf(f2, "in set session characteristics as transaction");
+	  fflush(f2);
+
 			ereport(DEBUG1, (errmsg("prestogres_send_to_where: set session characteristics as transaction")));
 			return PRESTOGRES_SYSTEM;
 		}
