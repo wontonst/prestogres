@@ -1851,6 +1851,14 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 			ereport(DEBUG1, (errmsg("prestogres_send_to_where: no relations")));
 			return PRESTOGRES_EITHER;
 		}
+		/*
+		 * SET SESSION CHARACTERISTICS AS TRANSACTION
+		 */
+		if (IsA(node, VariableSetStmt) && is_set_transaction_serializable(node)){
+			ereport(DEBUG1, (errmsg("prestogres_send_to_where: set session characteristics as transaction")));
+			return PRESTOGRES_SYSTEM;
+		}
+
 
 		ereport(DEBUG1, (errmsg("prestogres_send_to_where: select, insert, create table")));
 		return PRESTOGRES_PRESTO;
