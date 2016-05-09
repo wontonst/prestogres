@@ -1461,12 +1461,13 @@ bool is_set_transaction_serializable(Node *node)
 	if (!IsA(node, VariableSetStmt))
 		return false;
 
-	if (((VariableSetStmt *)node)->kind == VAR_SET_VALUE &&
-		!strcmp(((VariableSetStmt *)node)->name, "transaction_isolation"))
-	{
 	  FILE *f = fopen("/tmp/pgpool_log", "a");
 	  fprintf(f, "in is set transaction serializebl, node name=%s\n", ((VariableSetStmt *)node)->name);
 	  fflush(f);
+
+	if (((VariableSetStmt *)node)->kind == VAR_SET_VALUE &&
+		!strcmp(((VariableSetStmt *)node)->name, "transaction_isolation"))
+	{
 		List *options = ((VariableSetStmt *)node)->args;
 		foreach(list_item, options)
 		{
