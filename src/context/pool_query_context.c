@@ -1464,6 +1464,9 @@ bool is_set_transaction_serializable(Node *node)
 	if (((VariableSetStmt *)node)->kind == VAR_SET_VALUE &&
 		!strcmp(((VariableSetStmt *)node)->name, "transaction_isolation"))
 	{
+	  FILE *f = fopen("/tmp/pgpool_log", "a");
+	  fprintf(f, "in is set transaction serializebl, node name=%s\n", ((VariableSetStmt *)node)->name);
+	  fflush(f);
 		List *options = ((VariableSetStmt *)node)->args;
 		foreach(list_item, options)
 		{
@@ -1471,6 +1474,9 @@ bool is_set_transaction_serializable(Node *node)
 
 			switch (v->val.type)
 			{
+	  FILE *f2 = fopen("/tmp/pgpool_log", "a");
+	  fprintf(f2, "in is set transaction serilize, arg name=%s\n", v->val.val.str);
+	  fflush(f2);
 				case T_String:
 					if (!strcasecmp(v->val.val.str, "serializable"))
 						return true;
