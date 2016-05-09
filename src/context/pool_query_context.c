@@ -1865,8 +1865,8 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 		 * SET SESSION CHARACTERISTICS AS TRANSACTION
 		 * SET TRANSACTION
 		 */
-		if (strcasecmp(((VariableSetStmt *)node)->name, "SESSION CHARACTERISTICS") ||
-		    strcasecmp(((VariableSetStmt *)node)->name, "TRANSACTION")) {
+		if (!strcasecmp(((VariableSetStmt *)node)->name, "SESSION CHARACTERISTICS") ||
+		    !strcasecmp(((VariableSetStmt *)node)->name, "TRANSACTION")) {
 	  FILE *f2 = fopen("/tmp/pgpool_log", "a");
 	  fprintf(f2, "in set session characteristics as transaction, name=%s", ((VariableSetStmt*)node)->name);
 	  fflush(f2);
