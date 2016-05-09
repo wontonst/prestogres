@@ -1807,8 +1807,9 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 	 * INSERT INTO ... SELECT
 	 * CREATE TABLE
 	 * CREATE TABLE ... AS SELECT
+	 * SET
 	 */
-	if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt) || IsA(node, DropStmt) || IsA(node, ViewStmt))
+        if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt) || IsA(node, DropStmt) || IsA(node, ViewStmt) || IsA(node, VariableSetStmt))
 	{
 		if (pool_has_system_catalog(node))
 		{
