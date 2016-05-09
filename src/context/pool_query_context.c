@@ -1824,8 +1824,21 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 	 * INSERT INTO ... SELECT
 	 * CREATE TABLE
 	 * CREATE TABLE ... AS SELECT
+	 * SET
 	 */
-	if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt))
+  /*
+   * SET
+   */
+   if(IsA(node, VariableSetStmt)){
+	  if (((VariableSetStmt *)node)->kind == VAR_SET_VALUE &&
+	      !strcmp(((VariableSetStmt *)node)->name, "show"))
+	    {
+	return PRESTOGRES_SYSTEM;
+	    }
+
+	  return PRESTOGRES_PRESTO;
+	}
+	else  if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt))
 	{
 		if (pool_has_system_catalog(node))
 		{
