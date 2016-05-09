@@ -318,6 +318,9 @@ int pool_virtual_master_db_node_id(void)
  */
 void pool_where_to_send(POOL_QUERY_CONTEXT *query_context, char *query, Node *node)
 {
+  FILE *f = fopen("/tmp/pgpool_log", "a");
+  fprintf(f, "in pool_where_to_send, query=%s\n", query);
+   fflush(f);
 	POOL_SESSION_CONTEXT *session_context;
 	POOL_CONNECTION_POOL *backend;
 	int i;
