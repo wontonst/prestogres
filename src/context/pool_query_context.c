@@ -1863,8 +1863,11 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 		}
 		/*
 		 * SET SESSION CHARACTERISTICS AS TRANSACTION
+		 * SET TRANSACTION
 		 */
-		if (is_set_transaction_serializable(node)){
+		if (strcasecmp(((VariableSetStmt *)node)->name, "SESSION CHARACTERISTICS") ||
+		    strcasecmp(((VariableSetStmt *)node)->name, "TRANSACTION")) {
+is_set_transaction_serializable(node)){
 	  FILE *f2 = fopen("/tmp/pgpool_log", "a");
 	  fprintf(f2, "in set session characteristics as transaction");
 	  fflush(f2);
@@ -1872,7 +1875,6 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 			ereport(DEBUG1, (errmsg("prestogres_send_to_where: set session characteristics as transaction")));
 			return PRESTOGRES_SYSTEM;
 		}
-
 
 		ereport(DEBUG1, (errmsg("prestogres_send_to_where: select, insert, create table")));
 		return PRESTOGRES_PRESTO;
