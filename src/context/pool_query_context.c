@@ -435,7 +435,13 @@ void pool_where_to_send(POOL_QUERY_CONTEXT *query_context, char *query, Node *no
 			{
 				ereport(DEBUG1, (errmsg("prestogres: send_to_where: multi-statement: statement %d", i)));
 				Node* stmt = (Node*) lfirst(cell);
-				PRESTOGRES_DEST dest = prestogres_send_to_where(stmt);
+				PRESTOGRES_DEST dest;
+				if (IsA(stmt, VariableSetStmt)) {
+				  dest = PRESTOGRES_SYSTEM;
+				}
+				else {
+				  prestogres_send_to_where(stmt);
+				}
 				switch (dest) {
 				case PRESTOGRES_SYSTEM:
 					merged_dest = PRESTOGRES_SYSTEM;
@@ -1809,7 +1815,7 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 	 * CREATE TABLE ... AS SELECT
 	 * SET
 	 */
-        if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt) || IsA(node, DropStmt) || IsA(node, ViewStmt) || IsA(node, VariableSetStmt))
+  if (IsA(node, SelectStmt) || IsA(node, InsertStmt) || IsA(node, CreateStmt) || IsA(node, CreateTableAsStmt) || IsA(node, DropStmt) || IsA(node, ViewStmt) || IsA(node, VariableSetStmt))
 	{
 		if (pool_has_system_catalog(node))
 		{
@@ -1841,6 +1847,16 @@ PRESTOGRES_DEST prestogres_send_to_where(Node *node)
 		{
 			ereport(DEBUG1, (errmsg("prestogres_send_to_where: no relations")));
 			return PRESTOGRES_EITHER;
+		}
+		/*
+		 * SET SESSION CHARACTERISTICS AS TRANSACTION
+		 * SET TRANSACTION
+		 */
+		if (!strcasecmp(((VariableSetStmt *)node)->name, "SESSION CHARACTERISTICS") ||
+		    !strcasecmp(((VariableSetStmt *)node)->name, "TRANSACTION")) {
+
+			ereport(DEBUG1, (errmsg("prestogres_send_to_where: set session characteristics as transaction")));
+			return PRESTOGRES_SYSTEM;
 		}
 
 		ereport(DEBUG1, (errmsg("prestogres_send_to_where: select, insert, create table")));
